@@ -24,6 +24,10 @@ library:
   skills:
     - name: split-branch
       description: Diff surgery for stacked PRs - splits branches at hunk level using dependency graph analysis
-      source: /Users/octaviantocan/.claude/skills/split-branch/SKILL.md
+      source: https://github.com/OctavianTocan/skills/blob/main/skills/split-branch/SKILL.md
+
+    - name: sweep
+      description: Resolve PR review comments from any reviewer across one or many PRs
+      source: https://github.com/OctavianTocan/skills/blob/main/skills/sweep/SKILL.md
   agents: []
   prompts: []
