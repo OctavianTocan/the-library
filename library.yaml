@@ -1,13 +1,24 @@
 default_dirs:
   skills:
-    - default: .claude/skills/
-    - global: ~/.claude/skills/
+    - default: .agents/skills/
+    - global: ~/.agents/skills/
+    - claude: ~/.claude/skills/
   agents:
-    - default: .claude/agents/
-    - global: ~/.claude/agents/
+    - default: .agents/agents/
+    - global: ~/.agents/agents/
   prompts:
-    - default: .claude/commands/
-    - global: ~/.claude/commands/
+    - default: .agents/commands/
+    - global: ~/.agents/commands/
+
+platforms:
+  claude-code:
+    skills: ~/.claude/skills/
+  cursor:
+    skills: ~/.cursor/skills/
+  codex:
+    skills: ~/.codex/skills/
+  cline:
+    skills: ~/.cline/skills/
 
 library:
   skills:

@@ -1,7 +1,7 @@
 # List Available Skills
 
 ## Context
-Show the full library catalog with install status.
+Show the full library catalog with install status, source type, and platform symlinks.
 
 ## Steps
 
@@ -18,32 +18,39 @@ git pull
 
 ### 3. Check Install Status
 For each entry:
-- Determine the type and corresponding default/global directories from `default_dirs`
-- Check if a directory matching the entry name exists in the **default** directory
-- Check if a directory matching the entry name exists in the **global** directory
-- Search recursively for name matches
-- Mark as: `installed (default)`, `installed (global)`, or `not installed`
+- Check the `global` directory (`~/.agents/skills/<name>`)
+- Check the `default` directory (`.agents/skills/<name>` relative to cwd)
+- Check the `claude` backward-compat directory (`~/.claude/skills/<name>`)
+- Mark as: `installed (global)`, `installed (default)`, `installed (claude)`, or `not installed`
+
+For globally installed entries, also check which platform symlinks exist:
+- For each platform in `platforms` section, check if `<platform_skills_dir>/<name>` is a symlink
+- Collect the list of linked platforms
 
 ### 4. Display Results
+
+Determine source type for each entry:
+- Source starts with `/` or `~` -> `local`
+- Source starts with `https://github.com` -> `github`
 
 Format the output as a table grouped by type:
 
 ```
 ## Skills
-| Name | Description | Source | Status |
-|------|-------------|--------|--------|
-| skill-name | skill-description | /local/path/... | installed (default) |
-| other-skill | other-description | github.com/... | not installed |
+| Name | Description | Source Type | Status | Platforms |
+|------|-------------|------------|--------|-----------|
+| skill-name | description | github | installed (global) | claude, cursor, cline |
+| other-skill | description | local | not installed | - |
 
 ## Agents
-| Name | Description | Source | Status |
-|------|-------------|--------|--------|
-| agent-name | agent-description | /local/path/... | installed (global) |
+| Name | Description | Source Type | Status | Platforms |
+|------|-------------|------------|--------|-----------|
+| agent-name | description | github | installed (global) | claude |
 
 ## Prompts
-| Name | Description | Source | Status |
-|------|-------------|--------|--------|
-| prompt-name | prompt-description | github.com/... | not installed |
+| Name | Description | Source Type | Status | Platforms |
+|------|-------------|------------|--------|-----------|
+| prompt-name | description | github | not installed | - |
 ```
 
 If a section is empty, show: `No <type> in catalog.`

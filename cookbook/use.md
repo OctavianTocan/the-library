@@ -4,7 +4,7 @@
 Pull a skill, agent, or prompt from the catalog into the local environment. If already installed locally, overwrite with the latest from the source (refresh).
 
 ## Input
-The user provides a skill name or description.
+The user provides a skill name or description, and optionally a target modifier.
 
 ## Steps
 
@@ -31,11 +31,15 @@ If the entry has a `requires` field:
 - Process all dependencies before the requested item
 
 ### 4. Determine Target Directory
-- Read `default_dirs` from `library.yaml`
-- If user said "global" or "globally" → use the `global` path
-- If user specified a custom path → use that path
-- Otherwise → use the `default` path
-- Select the correct section based on type (skills/agents/prompts)
+
+Read `default_dirs` and `platforms` from `library.yaml`. Parse the user's intent:
+
+- **"globally" or "all platforms":** Use the `global` path (`~/.agents/skills/`). After copying, create platform symlinks (step 7).
+- **"for cursor" / "for codex" / "for cline":** Use that platform's directory from `platforms` section. No symlinks.
+- **Custom path specified:** Use that path. No symlinks.
+- **No modifier (default):** Use the `default` path (`.agents/skills/` relative to cwd, project-local). No symlinks.
+
+Select the correct section based on type (skills/agents/prompts).
 
 ### 5. Fetch from Source
 
@@ -54,7 +58,7 @@ If the entry has a `requires` field:
   ```bash
   cp <prompt_file> <target_directory>/<prompt_name>.md
   ```
-- If the agent or prompt is nested in a subdirectory under the `agents/` or `commands/` directories, copy the subdirectory to the target as well, creating the subdir if it doesn't exist. This is useful because it keeps the agents or commands grouped together.
+- If the agent or prompt is nested in a subdirectory under the `agents/` or `commands/` directories, copy the subdirectory to the target as well, creating the subdir if it doesn't exist. This keeps agents or commands grouped together.
 
 **If source is a GitHub URL**:
 - Parse the URL to extract: `org`, `repo`, `branch`, `file_path`
@@ -86,8 +90,27 @@ If the entry has a `requires` field:
 - Confirm the main file (SKILL.md, AGENT.md, or prompt file) exists in it
 - Report success with the installed path
 
-### 7. Confirm
+### 7. Create Platform Symlinks (global installs only)
+
+Skip this step if the install was not global.
+
+Read the `platforms` section from `library.yaml`. For each platform:
+
+1. Resolve the platform's skills directory (e.g., `~/.claude/skills/`)
+2. Check if the **parent** directory exists (e.g., `~/.claude/`). If not, skip this platform (not installed).
+3. Create the skills subdirectory if needed: `mkdir -p <platform_skills_dir>`
+4. Create a relative symlink:
+   ```bash
+   ln -sfn ../../.agents/skills/<name> <platform_skills_dir>/<name>
+   ```
+
+The relative path `../../.agents/skills/<name>` works because all platform skill dirs are at `~/.<platform>/skills/`, which is two levels up from the home directory to reach `~/.agents/skills/`.
+
+Report which platforms got symlinks.
+
+### 8. Confirm
 Tell the user:
 - What was installed and where
 - Any dependencies that were also installed
 - If this was a refresh (overwrite), mention that
+- If global: which platform symlinks were created

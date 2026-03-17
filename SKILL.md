@@ -12,7 +12,7 @@ A meta-skill for private-first distribution of agentics (skills, agents, and pro
 
 > Update these after forking and cloning the library repo.
 
-- **LIBRARY_REPO_URL**: `<your forked repo url>`
+- **LIBRARY_REPO_URL**: `https://github.com/OctavianTocan/the-library`
 - **LIBRARY_YAML_PATH**: `~/.claude/skills/library/library.yaml`
 - **LIBRARY_SKILL_DIR**: `~/.claude/skills/library/`
 
@@ -113,19 +113,70 @@ By default, items are installed to the **default** directory from `library.yaml`
 ```yaml
 default_dirs:
     skills:
-        - default: .claude/skills/
-        - global: ~/.claude/skills/
+        - default: .agents/skills/
+        - global: ~/.agents/skills/
+        - claude: ~/.claude/skills/
     agents:
-        - default: .claude/agents/
-        - global: ~/.claude/agents/
+        - default: .agents/agents/
+        - global: ~/.agents/agents/
     prompts:
-        - default: .claude/commands/
-        - global: ~/.claude/commands/
+        - default: .agents/commands/
+        - global: ~/.agents/commands/
 ```
 
-- If the user says "global" or "globally", use the `global` directory.
+- If the user says "global" or "globally", use the `global` directory (`~/.agents/skills/`) and create platform symlinks.
+- If the user says "for cursor" / "for codex" etc., install to that platform's directory only.
 - If the user specifies a custom path, use that path.
-- Otherwise, use the `default` directory.
+- Otherwise, use the `default` directory (project-local).
+
+## Cross-Platform Installation
+
+The `.agents/skills/` directory is the open standard (Agent Skills, adopted by 16+ tools). When installing globally:
+
+1. Copy skill to `~/.agents/skills/<name>/` (canonical store)
+2. Detect installed platforms by checking which dirs exist from the `platforms` section in `library.yaml`
+3. For each detected platform, create a relative symlink:
+   ```bash
+   ln -sfn ../../.agents/skills/<name> ~/.claude/skills/<name>
+   ```
+4. Report where installed and which platforms got symlinks
+
+This matches the existing pattern where `~/.claude/skills/` and `~/.cursor/skills/` already symlink to `~/.agents/skills/`.
+
+The `platforms` section in `library.yaml` is a lookup table:
+
+```yaml
+platforms:
+  claude-code:
+    skills: ~/.claude/skills/
+  cursor:
+    skills: ~/.cursor/skills/
+  codex:
+    skills: ~/.codex/skills/
+  cline:
+    skills: ~/.cline/skills/
+```
+
+Only platforms whose parent directory exists get symlinks. A missing `~/.cursor/` means Cursor isn't installed, so no symlink is created.
+
+## Per-Repo Sharing
+
+A `library.yaml` can live in any project repo, not just the library repo. This is the sharing mechanism.
+
+**How it works:**
+1. A project maintainer adds a `library.yaml` to their repo with GitHub URL sources
+2. A teammate clones the repo and installs the library skill (one-time, via skills.sh or manually)
+3. The teammate runs `/library install` in the project directory
+4. The library skill detects the local `library.yaml` and installs all listed skills
+
+**The library.yaml in the library repo** is the user's personal catalog (global).
+**A library.yaml in a project repo** is a team manifest (project-scoped).
+
+When the user runs `/library install`:
+- If in a directory with a `library.yaml` that is NOT the library repo: install all entries from that yaml
+- If in the library repo directory: run first-time setup
+
+**Important:** Per-repo library.yaml files should use GitHub URLs, not local paths. Local paths won't resolve on other machines.
 
 ## Library Repo Sync
 
@@ -141,48 +192,55 @@ This keeps the catalog in sync across devices.
 ```yaml
 default_dirs:
   skills:
-    - default: .claude/skills/
-    - global: ~/.claude/skills/
+    - default: .agents/skills/
+    - global: ~/.agents/skills/
+    - claude: ~/.claude/skills/
   agents:
-    - default: .claude/agents/
-    - global: ~/.claude/agents/
+    - default: .agents/agents/
+    - global: ~/.agents/agents/
   prompts:
-    - default: .claude/prompts/
-    - global: ~/.claude/prompts/
+    - default: .agents/commands/
+    - global: ~/.agents/commands/
+
+platforms:
+  claude-code:
+    skills: ~/.claude/skills/
+  cursor:
+    skills: ~/.cursor/skills/
+  codex:
+    skills: ~/.codex/skills/
+  cline:
+    skills: ~/.cline/skills/
 
 library:
   skills:
-    - name: firecrawl
-      description: Scrape, crawl, and search websites using Firecrawl CLI
-      source: /Users/me/projects/tools/skills/firecrawl/SKILL.md
-
-    - name: meta-skill
-      description: Creates new Agent Skills following best practices
-      source: /Users/me/projects/tools/skills/meta-skill/SKILL.md
-
     - name: diagram-kroki
       description: Generate diagrams via Kroki HTTP API supporting 28+ languages
       source: https://github.com/myorg/private-skills/blob/main/skills/diagram-kroki/SKILL.md
       requires: [skill:firecrawl]
 
+    - name: firecrawl
+      description: Scrape, crawl, and search websites using Firecrawl CLI
+      source: https://github.com/myorg/private-skills/blob/main/skills/firecrawl/SKILL.md
+
     - name: green-screen-captions
       description: Generate and burn AI-powered captions onto green screen videos
-      source: https://raw.githubusercontent.com/myorg/video-tools/main/skills/green-screen-captions/SKILL.md
+      source: https://github.com/myorg/video-tools/blob/main/skills/green-screen-captions/SKILL.md
       requires: [agent:video-processor, prompt:caption-style]
 
   agents:
-    - name: video-processor
-      description: Processes video files with ffmpeg and whisper transcription
-      source: /Users/me/projects/tools/agents/video-processor/AGENT.md
-
     - name: code-reviewer
       description: Reviews code for quality, security, and performance
       source: https://github.com/myorg/agent-configs/blob/main/agents/code-reviewer/AGENT.md
 
+    - name: video-processor
+      description: Processes video files with ffmpeg and whisper transcription
+      source: https://github.com/myorg/agent-configs/blob/main/agents/video-processor/AGENT.md
+
   prompts:
     - name: caption-style
       description: Style guide for generating video captions
-      source: /Users/me/projects/content/prompts/caption-style.md
+      source: https://github.com/myorg/content/blob/main/prompts/caption-style.md
 
     - name: commit-message
       description: Standardized commit message format for all projects

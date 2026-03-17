@@ -31,13 +31,26 @@ Show the entry details and ask:
 - If other entries depend on this one (via `requires`), warn the user before proceeding
 
 ### 5. Delete Local Copy (if requested)
+
 If the user confirmed local deletion:
-- Check the default directory for the type (from `default_dirs`)
-- Check the global directory
-- Remove the directory or file:
-  ```bash
-  rm -rf <target_directory>/<name>
-  ```
+
+1. Check all known directories for the entry:
+   - Global: `~/.agents/skills/<name>`
+   - Default: `.agents/skills/<name>` (relative to cwd)
+   - Claude backward-compat: `~/.claude/skills/<name>`
+
+2. Remove the canonical copy:
+   ```bash
+   rm -rf ~/.agents/skills/<name>
+   ```
+
+3. Remove platform symlinks. For each platform in `platforms` section of `library.yaml`:
+   ```bash
+   # Only remove if it's a symlink (not a real directory someone manually created)
+   [ -L <platform_skills_dir>/<name> ] && rm <platform_skills_dir>/<name>
+   ```
+
+4. Remove from any other locations found in step 1.
 
 ### 6. Commit and Push
 ```bash
@@ -51,4 +64,5 @@ git push
 Tell the user:
 - The entry has been removed from the catalog
 - Whether the local copy was also deleted
+- Which platform symlinks were removed
 - If other entries depended on it, remind them to update those entries
