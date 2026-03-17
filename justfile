@@ -4,6 +4,10 @@ set dotenv-load := true
 default:
     @just --list
 
+# Show library help and usage
+help:
+    claude --dangerously-skip-permissions --model opus "/library help"
+
 # Install the library (first-time setup)
 install:
     claude --dangerously-skip-permissions --model opus "/library install"

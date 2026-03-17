@@ -1,6 +1,6 @@
 ---
 name: library
-description: Private skill distribution system. Use when the user wants to install, use, add, push, remove, sync, list, or search for skills, agents, or prompts from their private library catalog. Triggers on /library commands or mentions of library, skill distribution, or agentic management.
+description: Private skill distribution system. Use when the user wants to install, use, add, push, remove, sync, list, search, or get help for skills, agents, or prompts from their private library catalog. Triggers on /library commands or mentions of library, skill distribution, or agentic management.
 argument-hint: [command or prompt] [name or details]
 ---
 
@@ -26,7 +26,8 @@ The Library is a catalog of references to your agentics. The `library.yaml` file
 
 | Command                     | Purpose                                  |
 | --------------------------- | ---------------------------------------- |
-| `/library install`          | First-time setup: fork, clone, configure |
+| `/library help`             | Show available commands and usage         |
+| `/library install`          | First-time setup, or install from per-repo yaml |
 | `/library add <details>`    | Register a new entry in the catalog      |
 | `/library use <name>`       | Pull from source (install or refresh)    |
 | `/library push <name>`      | Push local changes back to source        |
@@ -41,7 +42,8 @@ Each command has a detailed step-by-step guide. **Read the relevant cookbook fil
 
 | Command | Cookbook                                 | Use When                                                    |
 | ------- | --------------------------------------- | ----------------------------------------------------------- |
-| install | [cookbook/install.md](cookbook/install.md) | First-time setup on a new device                            |
+| help    | [cookbook/help.md](cookbook/help.md)       | User asks for help, usage, or runs `/library` with no args  |
+| install | [cookbook/install.md](cookbook/install.md) | First-time setup on a new device, or per-repo install       |
 | add     | [cookbook/add.md](cookbook/add.md)         | User wants to register a new skill/agent/prompt in catalog  |
 | use     | [cookbook/use.md](cookbook/use.md)         | User wants to pull or refresh a skill from the catalog      |
 | push    | [cookbook/push.md](cookbook/push.md)       | User improved a skill locally and wants to update the source |
