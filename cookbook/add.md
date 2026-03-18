@@ -8,23 +8,47 @@ The user provides: name, description, source, and optionally type and dependenci
 
 ## Steps
 
-### 1. Sync the Library Repo
-Pull the latest changes before modifying:
-```bash
-cd <LIBRARY_SKILL_DIR>
-git pull
-```
+### 1. Resolve Target Catalog
 
-### 2. Determine the Type
-Figure out the type from the user's prompt or the source path:
-- If the source path contains `SKILL.md` or user says "skill" -> type is `skill`
-- If the source path contains `AGENT.md` or user says "agent" -> type is `agent`
-- If user says "prompt" -> type is `prompt`
-- If ambiguous, ask the user
+Determine which `library.yaml` to modify:
+
+1. Check if `./library.yaml` exists in the current working directory.
+2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>` (the library repo itself):
+   - Use the local `./library.yaml` as the target catalog (per-repo manifest).
+   - Set `<TARGET_YAML>` = `./library.yaml`
+   - Set `<IS_LOCAL>` = true
+   - Skip the git pull/commit/push steps (the project repo manages its own commits).
+3. Otherwise, use the global catalog:
+   - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
+   - Set `<IS_LOCAL>` = false
+   - Sync the library repo first:
+     ```bash
+     cd <LIBRARY_SKILL_DIR>
+     git pull
+     ```
+
+### 2. Detect Source Type and Discover
+
+Determine what kind of source the user provided:
+
+**Repo-level source** (no file path - matches `user/repo` or `https://github.com/org/repo` without `/blob/`):
+1. Run the repo discovery flow (see SKILL.md "Repo Discovery Flow" section)
+2. Present all discovered SKILL.md files with their name + description from frontmatter
+3. Let the user pick one or more
+4. Resolve each to a full GitHub browser URL
+5. For each selected skill, continue to step 3 with the resolved URL
+6. If multiple skills are selected, repeat steps 3-8 for each one
+
+**File-level source** (local path, GitHub browser URL, or raw URL):
+- Determine the type from the source path or user's prompt:
+  - Source contains `SKILL.md` or user says "skill" -> type is `skill`
+  - Source contains `AGENT.md` or user says "agent" -> type is `agent`
+  - User says "prompt" -> type is `prompt`
+  - If ambiguous, ask the user
 
 ### 3. Validate the Source
 - **Local path**: Verify the file exists at the given path
-- **GitHub URL**: Verify the URL is well-formed (matches browser or raw URL patterns)
+- **GitHub file URL**: Verify the URL is well-formed (matches browser or raw URL patterns)
 - Confirm the source points to a specific file, not a directory
 
 ### 4. Check Shareability
@@ -57,8 +81,8 @@ Detect dependencies by looking through the skill/agent/prompt files, format them
   - If they don't exist add them to `library.yaml` first. If those files have dependencies, add them recursively.
   - You can detect these sometimes by looking at the frontmatter, and then in the file content look for `/<prompt|agent|skill>:name` references. If you're not sure, ask the user if they have any dependencies.
 
-### 6. Add the Entry to library.yaml
-Read `library.yaml`, add the new entry under the correct section:
+### 6. Add the Entry to the Target Catalog
+Read `<TARGET_YAML>`, add the new entry under the correct section:
 
 ```yaml
 # Under library.skills, library.agents, or library.prompts
@@ -78,7 +102,10 @@ Read `library.yaml`, add the new entry under the correct section:
 - For prompts reference the `.../<prompt name>.md` file (installed to `.agents/commands/`),
 - Remember we'll be adding an absolute path or a github url (https or ssh)
 
-### 7. Commit and Push
+### 7. Commit and Push (global catalog only)
+
+Skip this step if `<IS_LOCAL>` is true. The project repo manages its own commits.
+
 ```bash
 cd <LIBRARY_SKILL_DIR>
 git add library.yaml
@@ -87,4 +114,6 @@ git push
 ```
 
 ### 8. Confirm
-Tell the user the entry has been added and is now available for others to use via `/library use <name>`.
+Tell the user:
+- The entry has been added and is now available via `/library use <name>`.
+- If `<IS_LOCAL>`, mention it was added to the **project catalog** (`./library.yaml`), not the global one.

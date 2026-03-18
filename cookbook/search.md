@@ -8,15 +8,25 @@ The user provides a keyword or description.
 
 ## Steps
 
-### 1. Sync the Library Repo
-Pull the latest catalog before reading:
-```bash
-cd <LIBRARY_SKILL_DIR>
-git pull
-```
+### 1. Resolve Target Catalog
+
+Determine which `library.yaml` to search:
+
+1. Check if `./library.yaml` exists in the current working directory.
+2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+   - Use the local `./library.yaml`.
+   - Set `<TARGET_YAML>` = `./library.yaml`
+   - Skip the git pull step.
+3. Otherwise, use the global catalog:
+   - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
+   - Sync the library repo first:
+     ```bash
+     cd <LIBRARY_SKILL_DIR>
+     git pull
+     ```
 
 ### 2. Read the Catalog
-- Read `library.yaml`
+- Read `<TARGET_YAML>`
 - Parse all entries from `library.skills`, `library.agents`, and `library.prompts`
 
 ### 3. Search

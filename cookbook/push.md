@@ -8,8 +8,19 @@ The user provides a skill name or description.
 
 ## Steps
 
-### 1. Find the Entry
-- Read `library.yaml`
+### 1. Resolve Target Catalog and Find the Entry
+
+Determine which `library.yaml` to read:
+
+1. Check if `./library.yaml` exists in the current working directory.
+2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+   - Use the local `./library.yaml`.
+   - Set `<TARGET_YAML>` = `./library.yaml`
+3. Otherwise, use the global catalog:
+   - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
+
+Then:
+- Read `<TARGET_YAML>`
 - Search across all sections for the matching entry
 - If no match, tell the user the item wasn't found in the catalog
 

@@ -4,19 +4,43 @@
 Pull a skill, agent, or prompt from the catalog into the local environment. If already installed locally, overwrite with the latest from the source (refresh).
 
 ## Input
-The user provides a skill name or description, and optionally a target modifier.
+The user provides a skill name, repo source (`user/repo` or GitHub repo URL), or description, and optionally a target modifier.
 
 ## Steps
 
-### 1. Sync the Library Repo
-Pull the latest catalog before reading:
-```bash
-cd <LIBRARY_SKILL_DIR>
-git pull
-```
+### 1. Resolve Target Catalog
 
-### 2. Find the Entry
-- Read `library.yaml`
+Determine which `library.yaml` to read from:
+
+1. Check if `./library.yaml` exists in the current working directory.
+2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+   - Use the local `./library.yaml` as the catalog (per-repo manifest).
+   - Set `<TARGET_YAML>` = `./library.yaml`
+   - Set `<IS_LOCAL>` = true
+   - Skip the git pull step.
+3. Otherwise, use the global catalog:
+   - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
+   - Set `<IS_LOCAL>` = false
+   - Sync the library repo first:
+     ```bash
+     cd <LIBRARY_SKILL_DIR>
+     git pull
+     ```
+
+### 2. Find the Entry or Discover from Repo
+
+**If the input is a repo-level source** (matches `user/repo` shorthand or `https://github.com/org/repo` without `/blob/`):
+1. Run the repo discovery flow (see SKILL.md "Repo Discovery Flow" section)
+2. Present all discovered SKILL.md files with their name + description from frontmatter
+3. Let the user pick one or more
+4. Resolve each to a full GitHub browser URL
+5. For each selected skill, check if it already exists in `library.yaml` by name
+   - If it exists, proceed to step 3 (dependencies) using the existing entry
+   - If it doesn't exist, auto-register it in `library.yaml` (same as `/library add` steps 6-7: add entry, commit, push)
+6. Then continue to step 3 for installation
+
+**If the input is a name or description** (existing catalog lookup):
+- Read `<TARGET_YAML>`
 - Search across `library.skills`, `library.agents`, and `library.prompts`
 - Match by name (exact) or description (fuzzy/keyword match)
 - If multiple matches, show them and ask the user to pick one

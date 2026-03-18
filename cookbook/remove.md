@@ -8,15 +8,27 @@ The user provides a skill name or description.
 
 ## Steps
 
-### 1. Sync the Library Repo
-Pull the latest catalog before modifying:
-```bash
-cd <LIBRARY_SKILL_DIR>
-git pull
-```
+### 1. Resolve Target Catalog
+
+Determine which `library.yaml` to modify:
+
+1. Check if `./library.yaml` exists in the current working directory.
+2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+   - Use the local `./library.yaml` as the target catalog.
+   - Set `<TARGET_YAML>` = `./library.yaml`
+   - Set `<IS_LOCAL>` = true
+   - Skip git pull/commit/push steps.
+3. Otherwise, use the global catalog:
+   - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
+   - Set `<IS_LOCAL>` = false
+   - Sync the library repo first:
+     ```bash
+     cd <LIBRARY_SKILL_DIR>
+     git pull
+     ```
 
 ### 2. Find the Entry
-- Read `library.yaml`
+- Read `<TARGET_YAML>`
 - Search across all sections for the matching entry
 - Determine the type (skill, agent, or prompt)
 - If no match, tell the user the item wasn't found in the catalog
@@ -52,7 +64,10 @@ If the user confirmed local deletion:
 
 4. Remove from any other locations found in step 1.
 
-### 6. Commit and Push
+### 6. Commit and Push (global catalog only)
+
+Skip this step if `<IS_LOCAL>` is true.
+
 ```bash
 cd <LIBRARY_SKILL_DIR>
 git add library.yaml
