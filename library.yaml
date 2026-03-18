@@ -29,5 +29,9 @@ library:
     - name: sweep
       description: Resolve PR review comments from any reviewer across one or many PRs
       source: https://github.com/OctavianTocan/skills/blob/main/skills/sweep/SKILL.md
+
+    - name: userinterface-wiki
+      description: UI/UX best practices for web interfaces. Covers 11 categories from animation principles to typography.
+      source: https://github.com/raphaelsalaja/userinterface-wiki/blob/main/skills/SKILL.md
   agents: []
   prompts: []
