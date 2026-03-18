@@ -33,5 +33,9 @@ library:
     - name: userinterface-wiki
       description: UI/UX best practices for web interfaces. Covers 11 categories from animation principles to typography.
       source: https://github.com/raphaelsalaja/userinterface-wiki/blob/main/skills/SKILL.md
+
+    - name: stop-slop
+      description: Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to eliminate predictable AI tells.
+      source: https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md
   agents: []
   prompts: []
