@@ -2,7 +2,7 @@
 
 A meta-skill for private-first distribution of agentics (skills, agents, and prompts) across agents, devices, and teams.
 
-![The Library](images/10_meta_skill.svg)
+![The Library](skills/library/images/10_meta_skill.svg)
 
 ## Who This Is For
 
@@ -27,7 +27,7 @@ Think of it as a `package.json` for agent capabilities — but instead of packag
 
 ## Why It Exists
 
-![The Problem: Skill Sprawl](images/26_problem_skill_sprawl.svg)
+![The Problem: Skill Sprawl](skills/library/images/26_problem_skill_sprawl.svg)
 
 As you build with AI agents, you accumulate skills, custom agents, and prompts — potentially hundreds of them. You need to:
 
@@ -37,7 +37,7 @@ As you build with AI agents, you accumulate skills, custom agents, and prompts �
 - **Keep them private** — these are specialized capabilities built for competitive edge
 - **Stay in sync** — one source of truth, not 10 stale copies
 
-![The Problem: Siloed Teams](images/32_problem_team_sharing.svg)
+![The Problem: Siloed Teams](skills/library/images/32_problem_team_sharing.svg)
 
 Existing solutions don't fit:
 - **Global `~/.claude/*`** — exposes everything to every agent. Global is the opposite of specialized.
@@ -46,7 +46,7 @@ Existing solutions don't fit:
 
 ## How It Works
 
-![The Solution: The Library](images/27_solution_library_workflow.svg)
+![The Solution: The Library](skills/library/images/27_solution_library_workflow.svg)
 
 ### The Catalog (`library.yaml`)
 
@@ -109,53 +109,44 @@ Dependencies are resolved and pulled first, recursively.
 
 ## Installation
 
-This is a template repo. You fork it, clone it into your global skills directory, and it becomes a `/library` slash command available in every Claude Code session.
-
-### 1. Fork This Repo
-
-Fork to your own GitHub account (private repo recommended). This fork is your personal library catalog — you'll push catalog updates to it.
+### Quick Install (recommended)
 
 ```bash
-# Using GitHub CLI
-gh repo fork disler/the-library --private --clone=false
+npx skills add OctavianTocan/the-library -g
 ```
 
-Or fork manually via the GitHub UI.
+This installs the `library` skill globally so `/library` is available in every Claude Code session.
 
-### 2. Clone to Global Skills Directory
-
-Clone your fork into `~/.claude/skills/library`. This path is what makes `/library` available as a global slash command in Claude Code.
-
-```bash
-# Using git
-mkdir -p ~/.claude/skills/library
-git clone <your-fork-url> ~/.claude/skills/library
-
-# Or using GitHub CLI
-gh repo clone <yourname>/the-library ~/.claude/skills/library
-```
-
-### 3. Configure
-
-Open `~/.claude/skills/library/SKILL.md` and update the `## Variables` section with your fork URL. The agent reads these variables at runtime to know where to sync the catalog.
+After installing, open `~/.claude/skills/library/SKILL.md` (or wherever your agent installed it) and update the `## Variables` section with your fork URL:
 
 ```markdown
-# Before (template defaults)
-- **LIBRARY_REPO_URL**: `<your forked repo url>`
-
-# After (your values)
-- **LIBRARY_REPO_URL**: `https://github.com/yourname/the-library.git`
+- **LIBRARY_REPO_URL**: `https://github.com/yourname/the-library`
 ```
 
-The other two variables (`LIBRARY_YAML_PATH` and `LIBRARY_SKILL_DIR`) are correct by default if you cloned to `~/.claude/skills/library/`.
+### Manual Install (fork + clone)
 
-### 4. Verify
+If you want to manage the skill as a git repo (to push catalog updates):
+
+1. Fork this repo to your GitHub account (private recommended):
+   ```bash
+   gh repo fork OctavianTocan/the-library --private --clone=false
+   ```
+
+2. Clone your fork into the skills directory:
+   ```bash
+   git clone <your-fork-url> ~/.claude/skills/library
+   ```
+   If your agent stores skills elsewhere, clone into that directory instead.
+
+3. Update `SKILL.md` variables with your fork URL.
+
+### Verify
 
 Start a new Claude Code session anywhere. `/library list` should work and show an empty catalog.
 
 ## Quick Start
 
-![Full Workflow](images/45_solution_full_workflow.svg)
+![Full Workflow](skills/library/images/45_solution_full_workflow.svg)
 
 Here's the typical workflow: **build → catalog → distribute → use**.
 
@@ -260,7 +251,7 @@ just search "keyword"
 
 ## The Agentic Stack
 
-![The Agentic Stack](images/03_agentic_stack.svg)
+![The Agentic Stack](skills/library/images/03_agentic_stack.svg)
 
 | Layer           | Purpose                                        |
 | --------------- | ---------------------------------------------- |
