@@ -13,47 +13,40 @@ First-time setup of The Library on a new device, or installing all skills from a
 
 Check if there's a `library.yaml` in the current working directory.
 
-**If a library.yaml exists and this is NOT the library repo** (check: `<LIBRARY_SKILL_DIR>` is different from current dir):
+**If a library.yaml exists and this is NOT `<LIBRARY_CATALOG_DIR>`:**
 - This is a per-repo install. Switch to the per-repo workflow:
   1. Read the local `library.yaml`
   2. For each entry in `library.skills`, `library.agents`, and `library.prompts`, run the `use` workflow (see cookbook/use.md)
   3. Report what was installed
   4. Exit (skip the rest of install.md)
 
-**If no library.yaml exists, or this IS the library repo:**
+**Otherwise:**
 - Continue with first-time setup below.
 
-### 3. Determine Fork Status
-Ask the user: **"Is this the template repo or your own fork?"**
+### 3. Initialize the Global Catalog
 
-**If template repo (hasn't forked yet):**
-- Instruct the user to create a private fork on GitHub
-- Once forked, update the remote URL:
-  ```bash
-  cd <LIBRARY_SKILL_DIR>
-  git remote set-url origin <fork_url>
-  ```
-- Verify with: `git remote -v`
-
-**If already forked:**
-- Skip this step
-
-### 4. Clone to Global Skills Directory
-If the repo isn't already cloned locally:
+Create the catalog directory and initialize `library.yaml` if it doesn't exist:
 ```bash
-mkdir -p ~/.agents/skills/library
-git clone <fork_url> ~/.agents/skills/library
+mkdir -p ~/.library
 ```
 
-If already cloned (e.g., user cloned the template first), just update the remote per step 3.
+**If `~/.library/library.yaml` already exists:**
+- Skip initialization, the catalog is already set up.
 
-### 5. Update Variables
-- Open `SKILL.md` in the library directory
-- Take note of your current working directory.
+**If it doesn't exist but `<LIBRARY_SKILL_DIR>/library.yaml` exists (migration from old layout):**
+- Copy the existing catalog: `cp <LIBRARY_SKILL_DIR>/library.yaml ~/.library/library.yaml`
+- Tell the user: "Migrated your existing catalog to `~/.library/library.yaml`."
+
+**If neither exists:**
+- Create a fresh catalog with the default structure (see SKILL.md "Example Filled Library File" for the template, but with empty `library.skills`, `library.agents`, and `library.prompts` lists).
+
+### 4. Update Variables
+- Open `SKILL.md` in the library skill directory
 - Update the `## Variables` section:
-  - **LIBRARY_REPO_URL**: Set to the user's fork URL
-  - **LIBRARY_YAML_PATH**: Confirm path (default: `~/.agents/skills/library/library.yaml`)
-  - **LIBRARY_SKILL_DIR**: Confirm path (default: `~/.agents/skills/library/`)
+  - **LIBRARY_REPO_URL**: Set to the user's fork URL (if they have one)
+  - **LIBRARY_YAML_PATH**: Confirm path (default: `~/.library/library.yaml`)
+  - **LIBRARY_CATALOG_DIR**: Confirm path (default: `~/.library/`)
+  - **LIBRARY_SKILL_DIR**: Confirm path (default: the current skill directory)
 
 ### 6. Detect Platforms and Create Symlinks
 
@@ -75,14 +68,14 @@ Repeat for each detected platform. Report which platforms were detected and link
 
 ### 7. Verify Installation
 - Confirm SKILL.md exists at `<LIBRARY_SKILL_DIR>/SKILL.md`
-- Confirm library.yaml exists alongside it
+- Confirm library.yaml exists at `<LIBRARY_YAML_PATH>`
 - Confirm symlinks exist for detected platforms
 - Confirm the `/library` command is available
 
 ### 8. Done
 Tell the user:
-- The Library is now globally available via `~/.agents/skills/library/`
+- The Library skill is installed at `<LIBRARY_SKILL_DIR>`
+- The global catalog is at `~/.library/library.yaml`
 - Platform symlinks were created for: [list detected platforms]
 - `/library list` will show the catalog
 - `/library add` to start adding skills, agents, and prompts
-- The `justfile` in the library directory has shorthand commands

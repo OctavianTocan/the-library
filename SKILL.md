@@ -13,7 +13,8 @@ A meta-skill for private-first distribution of agentics (skills, agents, and pro
 > Update these after forking and cloning the library repo.
 
 - **LIBRARY_REPO_URL**: `https://github.com/OctavianTocan/the-library`
-- **LIBRARY_YAML_PATH**: `~/.claude/skills/library/library.yaml`
+- **LIBRARY_YAML_PATH**: `~/.library/library.yaml`
+- **LIBRARY_CATALOG_DIR**: `~/.library/`
 - **LIBRARY_SKILL_DIR**: `~/.claude/skills/library/`
 
 ## How It Works
@@ -59,27 +60,41 @@ Each command has a detailed step-by-step guide. **Read the relevant cookbook fil
 The `source` field in `library.yaml` supports these formats (auto-detected):
 
 - `/absolute/path/to/SKILL.md` — local filesystem
-- `https://github.com/org/repo/blob/main/path/to/SKILL.md` — GitHub browser URL
-- `https://raw.githubusercontent.com/org/repo/main/path/to/SKILL.md` — GitHub raw URL
+- `https://github.com/org/repo/blob/main/path/to/SKILL.md` — GitHub browser URL (file-level)
+- `https://raw.githubusercontent.com/org/repo/main/path/to/SKILL.md` — GitHub raw URL (file-level)
+- `user/repo` or `https://github.com/org/repo` — GitHub repo-level (auto-discovers skills)
 
 Both GitHub URL formats are supported. Parse org, repo, branch, and file path from the URL structure. For private repos, use SSH or `GITHUB_TOKEN` for auth automatically.
 
-**Important:** The source points to a specific file (SKILL.md, AGENT.md, or prompt file). We always pull the entire parent directory, not just the file.
+**Important:** File-level sources point to a specific file (SKILL.md, AGENT.md, or prompt file). We always pull the entire parent directory, not just the file. Repo-level sources trigger auto-discovery (see below).
 
 ## Source Parsing Rules
 
 **Local paths** start with `/` or `~`:
 - Use the path directly. Copy the parent directory of the referenced file.
 
-**GitHub browser URLs** match `https://github.com/<org>/<repo>/blob/<branch>/<path>`:
+**GitHub file URLs** contain `/blob/` in the path:
+- Browser URL pattern: `https://github.com/<org>/<repo>/blob/<branch>/<path>`
+- Raw URL pattern: `https://raw.githubusercontent.com/<org>/<repo>/<branch>/<path>`
 - Parse: `org`, `repo`, `branch`, `file_path`
 - Clone URL: `https://github.com/<org>/<repo>.git`
 - File location within repo: `<path>`
 
-**GitHub raw URLs** match `https://raw.githubusercontent.com/<org>/<repo>/<branch>/<path>`:
-- Parse: `org`, `repo`, `branch`, `file_path`
-- Clone URL: `https://github.com/<org>/<repo>.git`
-- File location within repo: `<path>`
+**GitHub repo-level sources** have no file path:
+- Shorthand pattern: `<user>/<repo>` (no protocol, no `/blob/`)
+- Full URL pattern: `https://github.com/<org>/<repo>` (no `/blob/` path)
+- These trigger the **repo discovery flow** (see cookbook/add.md and cookbook/use.md)
+
+## Repo Discovery Flow
+
+When a repo-level source is provided (during `add` or `use`), discover available skills:
+
+1. Detect default branch: `gh api repos/<user>/<repo> --jq .default_branch`
+2. Find all SKILL.md files: `gh api repos/<user>/<repo>/git/trees/<branch>?recursive=1 --jq '.tree[].path' | grep 'SKILL.md$'`
+3. For each SKILL.md, fetch frontmatter via `gh api repos/<user>/<repo>/contents/<path> --jq .content | base64 -d` to extract name + description
+4. Present the list to the user, let them pick one or more
+5. Resolve each selection to a full GitHub browser URL: `https://github.com/<user>/<repo>/blob/<branch>/<path>`
+6. Store the resolved URL as the source in library.yaml (never store the repo-level shorthand)
 
 ## GitHub Workflow
 
@@ -171,23 +186,18 @@ A `library.yaml` can live in any project repo, not just the library repo. This i
 3. The teammate runs `/library install` in the project directory
 4. The library skill detects the local `library.yaml` and installs all listed skills
 
-**The library.yaml in the library repo** is the user's personal catalog (global).
+**The library.yaml at `<LIBRARY_CATALOG_DIR>`** is the user's personal catalog (global).
 **A library.yaml in a project repo** is a team manifest (project-scoped).
 
 When the user runs `/library install`:
-- If in a directory with a `library.yaml` that is NOT the library repo: install all entries from that yaml
-- If in the library repo directory: run first-time setup
+- If in a directory with a `library.yaml` that is NOT `<LIBRARY_CATALOG_DIR>`: install all entries from that yaml
+- Otherwise: run first-time setup
 
 **Important:** Per-repo library.yaml files should use GitHub URLs, not local paths. Local paths won't resolve on other machines.
 
-## Library Repo Sync
+## Catalog Location
 
-The library skill itself lives in `<LIBRARY_SKILL_DIR>` as a cloned git repo. When running `add` (which modifies `library.yaml`), always:
-1. `git pull` in the library directory first to get latest
-2. Make the changes
-3. `git add library.yaml && git commit && git push`
-
-This keeps the catalog in sync across devices.
+The global catalog (`library.yaml`) lives at `<LIBRARY_CATALOG_DIR>` (`~/.library/`), separate from the skill code. This is a plain config directory, not a git repo. The skill code lives at `<LIBRARY_SKILL_DIR>`.
 
 ## Example Filled Library File
 

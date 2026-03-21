@@ -13,7 +13,7 @@ The user provides a skill name or description.
 Determine which `library.yaml` to read:
 
 1. Check if `./library.yaml` exists in the current working directory.
-2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+2. If it exists **and** the current directory is NOT `<LIBRARY_CATALOG_DIR>`:
    - Use the local `./library.yaml`.
    - Set `<TARGET_YAML>` = `./library.yaml`
 3. Otherwise, use the global catalog:

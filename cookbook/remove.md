@@ -13,19 +13,13 @@ The user provides a skill name or description.
 Determine which `library.yaml` to modify:
 
 1. Check if `./library.yaml` exists in the current working directory.
-2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+2. If it exists **and** the current directory is NOT `<LIBRARY_CATALOG_DIR>`:
    - Use the local `./library.yaml` as the target catalog.
    - Set `<TARGET_YAML>` = `./library.yaml`
    - Set `<IS_LOCAL>` = true
-   - Skip git pull/commit/push steps.
 3. Otherwise, use the global catalog:
    - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
    - Set `<IS_LOCAL>` = false
-   - Sync the library repo first:
-     ```bash
-     cd <LIBRARY_SKILL_DIR>
-     git pull
-     ```
 
 ### 2. Find the Entry
 - Read `<TARGET_YAML>`
@@ -64,18 +58,7 @@ If the user confirmed local deletion:
 
 4. Remove from any other locations found in step 1.
 
-### 6. Commit and Push (global catalog only)
-
-Skip this step if `<IS_LOCAL>` is true.
-
-```bash
-cd <LIBRARY_SKILL_DIR>
-git add library.yaml
-git commit -m "library: removed <type> <name>"
-git push
-```
-
-### 7. Confirm
+### 6. Confirm
 Tell the user:
 - The entry has been removed from the catalog
 - Whether the local copy was also deleted

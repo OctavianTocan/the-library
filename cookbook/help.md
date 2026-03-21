@@ -30,10 +30,12 @@ Modifiers for 'use':
   /library use <name> for cline         Install to Cline's skill directory only
   /library use <name> to <path>         Install to a custom path
 
-Source formats:
+Source formats (for 'add' and 'use'):
   /absolute/path/to/SKILL.md            Local filesystem
-  https://github.com/org/repo/blob/...  GitHub browser URL
-  https://raw.githubusercontent.com/... GitHub raw URL
+  https://github.com/org/repo/blob/...  GitHub file URL (direct to SKILL.md)
+  https://raw.githubusercontent.com/... GitHub raw URL (direct to SKILL.md)
+  user/repo                             GitHub repo shorthand (auto-discovers skills)
+  https://github.com/org/repo           GitHub repo URL (auto-discovers skills)
 
 Catalog: <LIBRARY_YAML_PATH>
 Repo:    <LIBRARY_REPO_URL>

@@ -13,19 +13,13 @@ The user provides: name, description, source, and optionally type and dependenci
 Determine which `library.yaml` to modify:
 
 1. Check if `./library.yaml` exists in the current working directory.
-2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>` (the library repo itself):
+2. If it exists **and** the current directory is NOT `<LIBRARY_CATALOG_DIR>`:
    - Use the local `./library.yaml` as the target catalog (per-repo manifest).
    - Set `<TARGET_YAML>` = `./library.yaml`
    - Set `<IS_LOCAL>` = true
-   - Skip the git pull/commit/push steps (the project repo manages its own commits).
 3. Otherwise, use the global catalog:
    - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
    - Set `<IS_LOCAL>` = false
-   - Sync the library repo first:
-     ```bash
-     cd <LIBRARY_SKILL_DIR>
-     git pull
-     ```
 
 ### 2. Detect Source Type and Discover
 
@@ -102,18 +96,7 @@ Read `<TARGET_YAML>`, add the new entry under the correct section:
 - For prompts reference the `.../<prompt name>.md` file (installed to `.agents/commands/`),
 - Remember we'll be adding an absolute path or a github url (https or ssh)
 
-### 7. Commit and Push (global catalog only)
-
-Skip this step if `<IS_LOCAL>` is true. The project repo manages its own commits.
-
-```bash
-cd <LIBRARY_SKILL_DIR>
-git add library.yaml
-git commit -m "library: added <type> <name>"
-git push
-```
-
-### 8. Confirm
+### 7. Confirm
 Tell the user:
 - The entry has been added and is now available via `/library use <name>`.
 - If `<IS_LOCAL>`, mention it was added to the **project catalog** (`./library.yaml`), not the global one.

@@ -13,17 +13,11 @@ The user provides a keyword or description.
 Determine which `library.yaml` to search:
 
 1. Check if `./library.yaml` exists in the current working directory.
-2. If it exists **and** the current directory is NOT `<LIBRARY_SKILL_DIR>`:
+2. If it exists **and** the current directory is NOT `<LIBRARY_CATALOG_DIR>`:
    - Use the local `./library.yaml`.
    - Set `<TARGET_YAML>` = `./library.yaml`
-   - Skip the git pull step.
 3. Otherwise, use the global catalog:
    - Set `<TARGET_YAML>` = `<LIBRARY_YAML_PATH>`
-   - Sync the library repo first:
-     ```bash
-     cd <LIBRARY_SKILL_DIR>
-     git pull
-     ```
 
 ### 2. Read the Catalog
 - Read `<TARGET_YAML>`
